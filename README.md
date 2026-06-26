@@ -1,0 +1,444 @@
+# Cash Intelligence Dashboard for Italian SMEs
+
+[![Portfolio Project](https://img.shields.io/badge/Type-Portfolio%20Project-00D4AA)]()
+[![Power BI](https://img.shields.io/badge/Built%20with-Power%20BI-F2C811)]()
+[![Status](https://img.shields.io/badge/Status-Active%20Development-44AA44)]()
+
+> **Automated liquidity monitoring and 13-week cash forecasting
+> for Italian manufacturing SMEs — compliant with D.Lgs. 14/2019.**
+
+---
+
+## About This Project
+
+This is a portfolio project demonstrating applied **FP&A and Treasury
+Management** competencies through a real-world financial problem:
+Italian manufacturing SMEs routinely run profitable P&Ls while facing
+liquidity crises — because nobody is measuring cash forward,
+only backward.
+
+I designed and built a complete financial intelligence system in Power BI
+that transforms raw operational data (AR, AP, bank statements, tax
+schedule, loan amortisation) into a structured monthly cash report —
+updated automatically, no manual spreadsheet work.
+
+**The target:** SME finance directors and business owners who need cash
+visibility 90 days ahead, not 30 days behind.
+**The stack:** Power BI Desktop — data modelling, DAX calculations,
+automated scenario engine.
+**The dataset:** Synthetic — Meccanica Rossi Srl, simulated Italian
+manufacturing company, €1.8M revenue, 14 employees.
+
+---
+
+## Screenshots
+
+### Page 1 — Financial Health Monitor
+
+![Page 1 - Health Dashboard](page1_health.png)
+
+*Eight normative KPIs with traffic-light logic.
+Four indicators in amber — visible the moment the report opens.*
+
+### Page 2 — 13-Week Cash Forecast
+
+![Page 2 - Cash Forecast](page2_cashflow.png)
+
+*Three simultaneous scenarios. Weekly granularity.
+Tax payments and loan repayments from the real schedule — not estimates.*
+
+---
+
+## Business Value
+
+This system enables management to:
+
+- **Anticipate liquidity shortfalls** up to 90 days before they become
+  payment failures — including the specific week they occur
+- **Plan around fixed obligations** (tax deadlines, loan repayments)
+  from a structured forward schedule instead of discovering them
+  last minute
+- **Model payment risk** across three scenarios — optimistic, realistic,
+  and stress — each measured against a minimum safety threshold
+- **Monitor eight financial health indicators** against regulatory and
+  banking benchmarks in real time, not at quarter-end
+- **Prioritise receivables collections** based on which customers carry
+  the highest combination of delay risk and portfolio exposure
+
+**The core insight this project surfaces:**
+
+A business can show DSCR 2.56 (debt fully covered for 6 months)
+and only 32 days of liquidity runway — simultaneously.
+Standard reporting shows one. This system shows both.
+
+---
+
+## My Role
+
+I designed and built this project end-to-end, independently:
+
+**Financial design:**
+- KPI selection and normative benchmark framework
+- 13-week rolling forecast methodology and scenario logic
+- Cash budget structure (CNDCEC Budget di Tesoreria methodology)
+- Credit risk scoring model for AR portfolio
+- Altman Z'-Score adaptation for non-listed Italian SMEs
+
+**Technical execution:**
+- Star schema data model in Power BI Desktop
+- Data preparation and normalisation pipeline
+- Scenario calculation engine with cumulative rolling logic
+- Conditional alert system with hierarchical priority logic
+- Seven-page dashboard with executive and analyst-level views
+
+**Financial compliance:**
+- Alignment of DSO/DPO formulas to CNDCEC official methodology
+- DSCR calculation structure per D.Lgs. 14/2019
+- Art. 25-novies early warning signal monitoring
+
+---
+
+## Key Skills Demonstrated
+
+| Financial | Technical |
+|-----------|-----------|
+| Cash Flow Forecasting (13-week) | Power BI — data modelling and DAX |
+| Financial Planning & Analysis (FP&A) | Star Schema architecture |
+| Treasury Management | Scenario engine design |
+| Scenario Analysis (3-model) | Conditional logic and alert systems |
+| Working Capital Management | Power Query — data preparation |
+| Credit Risk Scoring | Data visualisation |
+| KPI Design and Benchmarking | Automated refresh pipeline |
+| Regulatory Compliance (Italian CCII) | Business Intelligence |
+| Altman Z'-Score Modelling | Financial data architecture |
+
+---
+
+## System Overview — 7 Pages
+
+| Page | Focus | Core Output | Link Approfondimento |
+|------|-------|-------------|----------------------|
+| 01 HEALTH | Real-time financial monitoring | 8-KPI dashboard with normative benchmarks | [Leggi Dettaglio Tecnico](methodology/module1_liquidity_forecast.md) |
+| 02 CASHFLOW | Forward-looking cash projection | 13-week forecast + cash budget structure | [Leggi Dettaglio Tecnico](methodology/module1_liquidity_forecast.md) |
+| 03 CLIENTS | AR risk analysis | Concentration risk, aging, credit score | _Disponibile Prossimamente_ |
+| 04 SUPPLIERS | AP management + working capital | DPO, Gap DSO-DPO, CCC, Art. 25-novies |
+| 05 DSCR | Regulatory compliance | DSCR, 12-month sustainability test |
+| 06 RATING | Predictive financial scoring | Altman Z'-Score, Leverage, PFN/EBITDA |
+| 07 ACTIONS | Prescriptive recommendations | Monthly action list with monetary impact |
+
+---
+
+## Data Architecture
+
+```
+[Raw Data Sources]
+        │
+        ├── Accounts Receivable ledger (AR)
+        ├── Accounts Payable ledger (AP)
+        ├── Bank statement — running balance
+        ├── Tax payment schedule (F24)
+        ├── Loan amortisation plan
+        └── Annual accounts (balance sheet + P&L)
+        │
+[Preparation Layer — Power Query]
+  Normalise formats · Align date types · Scale corrections
+        │
+[Data Model — Star Schema]
+  Fact tables connected to shared date dimension
+  Isolated support tables for scenario and KPI logic
+        │
+[Calculation Engine — DAX]
+  Forecast scenarios · KPI measures · Alert conditions · Scoring
+        │
+[Dashboard — 7 Pages]
+  Executive view (health) → Operational detail → Prescriptive output
+```
+
+**Key architectural decision:** Forecast tables are intentionally
+isolated from the date dimension. This prevents automatic filter
+propagation and gives the scenario engine full control over date
+logic — essential for cumulative rolling cash calculations.
+
+---
+
+## Analytical Methodology — Module 1 (Pages 1 + 2)
+
+### Liquidity Runway
+
+```
+Liquidity Runway = Cash Balance / (Monthly Fixed Costs / 30)
+```
+
+| Range | Status | Decision |
+|-------|--------|----------|
+| > 60 days | ✅ Green | Safe |
+| 30–60 days | ⚠️ Amber | Monitor |
+| < 30 days | 🔴 Red | Act immediately |
+
+**Test result: 32 days → Amber**
+
+### 13-Week Rolling Forecast — Scenario Logic
+
+| Scenario | Receivables | Payables |
+|----------|------------|---------|
+| Optimistic | Collected on due date | Fixed weekly schedule |
+| Base | Due date + historical DSO per customer | Fixed weekly schedule |
+| Pessimistic | Due date + DSO + 30-day stress | Fixed weekly schedule |
+
+Payables are invariant across all scenarios — suppliers, tax
+authorities, and banks do not extend delays because a customer
+is late paying.
+
+**Outflows explicitly scheduled (not averaged):**
+AP from invoice ledger · Payroll · F24 tax payments ·
+Loan repayments
+
+**Known limitation — revenue horizon:**
+Invoice-based inflows cover 30–60 days of forward visibility.
+For weeks 7–13, the current model relies on synthetic data
+with pre-distributed invoices. In a live implementation,
+integration with the customer order backlog (portafoglio ordini)
+is required to extend revenue visibility across the full
+13-week horizon. This is identified as the primary
+development priority for the next release.
+
+**Known limitation — stress test granularity:**
+The current stress scenario applies a uniform 30-day delay
+across all customers. A more sophisticated implementation
+would weight the stress by customer credit score — customers
+in higher-risk tiers receive larger delay assumptions.
+This improvement is planned for integration with the
+credit risk module (Page 3).
+
+### Cash Budget — 6-Month Structure (CNDCEC Budget di Tesoreria)
+
+```
+A  Opening cash balance
+B  Operative inflows       (AR — 6 months)
+C  Operative outflows      (AP + Payroll + Tax — 6 months)
+D  Net operative flow      = B – C
+F  Available for debt      = A + D
+G  Debt service            (loans + leasing — 6 months)
+I  Closing balance         = F – G
+
+DSCR = F ÷ G  |  Threshold: ≥ 1.0 (D.Lgs. 14/2019)
+```
+
+**Methodology source:** CNDCEC "Strumenti di allerta" 2022 —
+Budget di Tesoreria approach, recommended for SMEs with
+structured accounting systems.
+
+**Test result: DSCR 2.56 ✅ — 12-month sustainability: 0.60 🔴**
+
+---
+
+## Key Results — Test Dataset
+
+| Metric | Value | Status | Benchmark |
+|--------|-------|--------|-----------|
+| Liquidity Runway | 32 days | ⚠️ | > 60 days |
+| DSCR (6 months) | 2.56 | ✅ | ≥ 1.0 |
+| 12-Month Sustainability | 0.60 | 🔴 | ≥ 1.0 |
+| 90-Day Minimum Balance | €224,554 | ✅ | > Safety threshold |
+| 90-Day Expected Inflows | €423,600 | ✅ | — |
+| 90-Day Expected Outflows | €325,020 | — | — |
+| 6-Month Net Closing Balance | €49,160 | ✅ | > 0 |
+| DSO | 73 days | ⚠️ | ≤ 52 days |
+| Concentration Risk (top client) | 36.9% | ⚠️ | < 25% |
+| Health indicators in amber | 4 of 8 | ⚠️ | — |
+
+**The analytical tension this project is designed to surface:**
+A business with DSCR 2.56 (solid debt coverage at 6 months)
+holds only 32 days of liquidity runway.
+Both are true simultaneously.
+The CCC of 146 days structurally explains this gap —
+cash is tied up in inventory and receivables, not in the account.
+Standard reporting shows the P&L. This system shows
+where the cash actually is, and when it will move.
+
+---
+
+## Challenges & Solutions
+
+### 1. Scenario integrity under incomplete data
+
+**Challenge:** When customers had no historical payment data,
+the base scenario used a portfolio-average DSO. This caused
+the pessimistic scenario (base + 30 days) to sometimes produce
+higher projected balances than the base — inverting the intended
+ordering of the three curves.
+
+**Solution:** Redesigned the receivable timing logic to anchor
+all scenarios to the contractual due date, not to the estimated
+collection date. This guarantees Optimistic ≥ Base ≥ Pessimistic
+at every data point, regardless of missing customer history.
+
+### 2. Tax and debt data in non-standard format
+
+**Challenge:** Source files used international decimal notation
+(1850.00) in an Italian locale environment (which reads commas,
+not dots, as decimal separators). The system was reading monthly
+loan repayments of €1,850 as €185,000 — making the DSCR
+denominator 100x too large.
+
+**Solution:** Built a systematic scaling transformation in the
+data preparation layer, applied consistently to all monetary
+columns in affected source tables.
+
+### 3. DSO/DPO methodological consistency
+
+**Challenge:** The CNDCEC official DSO and DPO formulas require
+both numerator and denominator to be VAT-inclusive — because
+balance sheet receivables include VAT, but reported revenue
+does not. Naively comparing open AR against revenue understates
+DSO by approximately 18%.
+
+**Solution:** Applied a 1.22 VAT multiplier to the revenue
+denominator in both DSO and DPO formulas, achieving
+methodological consistency with the published CNDCEC standard.
+
+### 4. Balancing analytical depth with executive readability
+
+**Challenge:** The same dashboard serves two different audiences
+— finance-literate analysts who want to inspect the methodology,
+and SME owners who want one-line answers.
+
+**Solution:** Designed a layered structure: Page 1 provides
+traffic lights and plain-language alerts; Pages 5 and 6 expose
+the full normative and scoring methodology for those who want it.
+
+---
+
+## What I Learned
+
+**On financial analysis:**
+
+The Cash Conversion Cycle explains what the P&L cannot.
+A manufacturing company with a 146-day CCC will always struggle
+with cash — not because it is unprofitable, but because it buys
+materials, processes them, invoices late, and waits.
+The gap between profitability and liquidity in SMEs is structural,
+not circumstantial. A DSCR of 2.56 and a liquidity runway of
+32 days can coexist — and usually do.
+
+**On forecasting:**
+
+Single-point forecasts create false precision and overconfidence.
+When management sees three scenarios simultaneously, it makes
+fundamentally different decisions — particularly about when to
+escalate receivables collection and when to negotiate AP
+extensions. The safety threshold line is what transforms a
+forecast into a decision tool.
+
+**On data:**
+
+In real implementations, approximately 60% of the project time
+goes to data preparation — not financial modelling.
+Format inconsistencies, missing fields, and naming discrepancies
+in source data are the rule, not the exception. The decimal
+notation issue in this project (source data in international
+format, Italian locale environment) is a representative example
+of the kind of data quality problem that breaks models in
+production.
+
+**On the normative framework:**
+
+Italian insolvency law (CCII, D.Lgs. 14/2019) provides a
+methodologically sound and practical structure for monitoring
+business continuity. The Budget di Tesoreria approach is a
+well-designed instrument — not just a compliance checkbox.
+Understanding why regulators chose this structure helps
+build better forecasting models.
+
+---
+
+## Dataset
+
+All data is synthetic and generated for demonstration purposes.
+No real company data is included.
+
+| File | Content | Frequency |
+|------|---------|-----------|
+| `accounts_receivable.xlsx` | Customer invoices — open and paid | Monthly |
+| `accounts_payable.xlsx` | Supplier invoices — open and paid | Monthly |
+| `bank_movements.csv` | Bank statement + running balance | Monthly |
+| `tax_schedule.xlsx` | F24 deadlines and amounts | Annual |
+| `loan_amortisation.xlsx` | Loan and leasing repayment plan | Annual |
+| `annual_accounts.xlsx` | Balance sheet and P&L | Annual |
+
+---
+
+## Project Structure
+
+```
+cash-intelligence-dashboard/
+│
+├── README.md
+│
+├── report/
+│   └── cashflow_dashboard.pbix
+│
+├── dataset/                        ← Synthetic data only
+│   ├── accounts_receivable.xlsx
+│   ├── accounts_payable.xlsx
+│   ├── bank_movements.csv
+│   ├── tax_schedule.xlsx
+│   ├── loan_amortisation.xlsx
+│   └── annual_accounts.xlsx
+│
+├── methodology/
+│   ├── module1_liquidity_forecast.md
+│   ├── module2_risk_analysis.md
+│   └── module3_compliance_scoring.md
+│
+└── docs/
+    ├── screenshots/
+    │   ├── page1_health.png
+    │   ├── page2_cashflow.png
+    │   ├── page3_clients.png
+    │   ├── page4_suppliers.png
+    │   ├── page5_dscr.png
+    │   ├── page6_rating.png
+    │   └── page7_actions.png
+    └── data_architecture.md
+```
+
+---
+
+## Intellectual Property
+
+The calculation logic and data model powering this dashboard
+are proprietary and not included in this repository.
+
+This README and the `/methodology` folder document the
+**financial framework and analytical design** — not the source code.
+
+---
+
+## License
+
+Documentation and methodology: **CC BY-NC-ND 4.0**
+You may read and reference this documentation for
+non-commercial purposes.
+Commercial use or redistribution requires written permission.
+
+---
+
+## Author
+
+Diego Delbianco
+finance professional working at the intersection of
+FP&A, Treasury Management, and Business Intelligence.
+
+This project demonstrates applied financial modelling —
+from regulatory framework design to automated dashboard
+delivery and prescriptive analytics.
+
+www.linkedin.com/in/diego-delbianco-588b32293
+
+diegodelbianco12@gmail.com
+
+---
+
+*Module 1 of a four-project financial analytics portfolio.
+Full series documentation in progress.*
