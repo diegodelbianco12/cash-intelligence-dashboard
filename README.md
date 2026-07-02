@@ -47,6 +47,21 @@ Four indicators in amber — visible the moment the report opens.*
 *Three simultaneous scenarios. Weekly granularity.
 Tax payments and loan repayments from the real schedule — not estimates.*
 
+### Page 3 — Client & Credit Risk
+
+![Page 3 - Client Risk](page3_clients.png)
+
+*Concentration risk, AR aging, and a composite credit score per customer.
+The largest customer (37% of the book) and the highest-risk customer
+(score 71/100) are two different names.*
+
+### Page 4 — Suppliers & Working Capital
+
+![Page 4 - Suppliers](page4_suppliers.png)
+
+*DPO, the DSO–DPO gap, and a 146-day cash conversion cycle — plus the four
+Art. 25-novies early-warning signals, one already triggered on VAT.*
+
 ---
 
 ## Business Value
@@ -64,12 +79,28 @@ This system enables management to:
   banking benchmarks in real time, not at quarter-end
 - **Prioritise receivables collections** based on which customers carry
   the highest combination of delay risk and portfolio exposure
+- **Separate customer size from customer risk** — rank the receivables
+  book by payment behaviour, not revenue, and measure how much of it
+  sits in the high-risk tier
+- **Locate where cash is trapped** — decompose the 146-day cash conversion
+  cycle to distinguish the collection-vs-payment gap from the
+  inventory-holding period
+- **Catch regulatory triggers automatically** — monitor the four
+  Art. 25-novies CCII early-warning signals, flagging breaches
+  (e.g. VAT arrears) the month they cross the statutory threshold
 
 **The core insight this project surfaces:**
 
 A business can show DSCR 2.56 (debt fully covered for 6 months)
 and only 32 days of liquidity runway — simultaneously.
 Standard reporting shows one. This system shows both.
+
+**A second insight the AR/AP module surfaces:**
+
+The largest customer and the riskiest customer are not the same name.
+The biggest account holds 37% of the receivables portfolio; the highest
+risk score (71/100) belongs to a smaller, chronically late-paying
+customer. Ranking by revenue would flag neither correctly.
 
 ---
 
@@ -82,19 +113,23 @@ I designed and built this project end-to-end, independently:
 - 13-week rolling forecast methodology and scenario logic
 - Cash budget structure (CNDCEC Budget di Tesoreria methodology)
 - Credit risk scoring model for AR portfolio
+- Receivables concentration and aging framework
+- Working capital cycle analysis (DSO, DPO, DIO, Cash Conversion Cycle)
 - Altman Z'-Score adaptation for non-listed Italian SMEs
 
 **Technical execution:**
 - Star schema data model in Power BI Desktop
 - Data preparation and normalisation pipeline
 - Scenario calculation engine with cumulative rolling logic
+- Two-dimensional risk mapping (customer exposure × payment delay)
 - Conditional alert system with hierarchical priority logic
 - Seven-page dashboard with executive and analyst-level views
 
 **Financial compliance:**
 - Alignment of DSO/DPO formulas to CNDCEC official methodology
 - DSCR calculation structure per D.Lgs. 14/2019
-- Art. 25-novies early warning signal monitoring
+- Art. 25-novies four-signal early-warning monitoring
+  (VAT, INPS, payroll, trade suppliers)
 
 ---
 
@@ -120,11 +155,11 @@ I designed and built this project end-to-end, independently:
 |------|-------|-------------|----------------------|
 | 01 HEALTH | Real-time financial monitoring | 8-KPI dashboard with normative benchmarks | [Leggi Dettaglio Tecnico](methodology/module1_liquidity_forecast.md) |
 | 02 CASHFLOW | Forward-looking cash projection | 13-week forecast + cash budget structure | [Leggi Dettaglio Tecnico](methodology/module1_liquidity_forecast.md) |
-| 03 CLIENTS | AR risk analysis | Concentration risk, aging, credit score | _Disponibile Prossimamente_ |
-| 04 SUPPLIERS | AP management + working capital | DPO, Gap DSO-DPO, CCC, Art. 25-novies |
-| 05 DSCR | Regulatory compliance | DSCR, 12-month sustainability test |
-| 06 RATING | Predictive financial scoring | Altman Z'-Score, Leverage, PFN/EBITDA |
-| 07 ACTIONS | Prescriptive recommendations | Monthly action list with monetary impact |
+| 03 CLIENTS | AR risk analysis | Concentration risk, aging, credit score | [Leggi Dettaglio Tecnico](methodology/module2_risk_analysis.md) |
+| 04 SUPPLIERS | AP management + working capital | DPO, Gap DSO-DPO, CCC, Art. 25-novies | [Leggi Dettaglio Tecnico](methodology/module2_risk_analysis.md) |
+| 05 DSCR | Regulatory compliance | DSCR, 12-month sustainability test | _Disponibile Prossimamente_ |
+| 06 RATING | Predictive financial scoring | Altman Z'-Score, Leverage, PFN/EBITDA | _Disponibile Prossimamente_ |
+| 07 ACTIONS | Prescriptive recommendations | Monthly action list with monetary impact | _Disponibile Prossimamente_ |
 
 ---
 
@@ -232,6 +267,78 @@ structured accounting systems.
 
 ---
 
+## Analytical Methodology — Module 2 (Pages 3 + 4)
+
+### Concentration & Credit Risk
+
+Concentration risk measures each customer's share of total receivables
+exposure, benchmarked against a prudential ceiling:
+
+```
+Concentration Risk = Customer receivables exposure / Total portfolio exposure
+```
+
+| Range | Status | Decision |
+|-------|--------|----------|
+| < 25% | ✅ Green | Diversified |
+| 25–40% | ⚠️ Amber | Monitor closely |
+| > 40% | 🔴 Red | Critical dependency |
+
+**Test result: top customer at 37% → Amber.** More than a third of the
+book on one counterparty; a 30-day delay from that account alone would
+collapse the 32-day runway from Module 1.
+
+### Composite Credit Score — Size Is Not Risk
+
+Each customer receives a single 0–100 risk score blending payment
+slowness (DSO), payment reliability (delay frequency), payment volatility
+(delay variance), and portfolio exposure (concentration, acting as an
+amplifier). The design principle:
+
+| Customer | Concentration | DSO | Composite score |
+|----------|---------------|-----|-----------------|
+| Alfa Meccanica (largest) | 37% | 27 days | 61 |
+| Gamma Costruzioni (smaller) | 20% | 59 days | **71** |
+
+The biggest customer is not the riskiest. Aggregated, receivables in the
+high-risk tier (score > 70) total **€185,172 — 22.1% of the open book.**
+
+Customers with no payment history are returned as **unscored (blank),
+not zero** — a DSO of 0 would falsely rank the least-known customers as
+the safest.
+
+### Working Capital — Cash Conversion Cycle
+
+```
+CCC = DSO + DIO − DPO = 73 + 130 − 57 = 146 days
+```
+
+**Test result: 146 days → Critical.** The naïve gap (DSO − DPO = +16 days)
+reads *within norm*. The CCC reveals the real driver: **inventory
+(≈130 days),** not the collection-payment gap. Cash is committed when
+materials are bought and recovered almost five months later — the
+structural reason a profitable business (DSCR 2.56) holds only 32 days
+of runway.
+
+### Art. 25-novies CCII — Early Warning
+
+Four statutory early-warning signals monitored automatically:
+
+| Creditor | Threshold | Reference | Status |
+|----------|-----------|-----------|--------|
+| Employees (payroll) | > 30 days overdue, > 50% monthly payroll | lett. a) | ✅ |
+| Trade suppliers | > 90 days overdue, overdue > current | lett. b) | ✅ |
+| Revenue Agency (VAT) | Unpaid VAT > €5,000 | lett. c) | 🔴 |
+| INPS | > 90 days, omitted > €5,000 / €11,000 | lett. d) | ✅ |
+
+**Triggered: unpaid VAT €8,200 > €5,000 threshold** — a formal
+early-warning signal under CCII, surfaced automatically the month it
+crosses the line.
+
+**Full methodology:** [module2_risk_analysis.md](methodology/module2_risk_analysis.md)
+
+---
+
 ## Key Results — Test Dataset
 
 | Metric | Value | Status | Benchmark |
@@ -307,6 +414,49 @@ and SME owners who want one-line answers.
 traffic lights and plain-language alerts; Pages 5 and 6 expose
 the full normative and scoring methodology for those who want it.
 
+### 5. Missing payment history producing false low-risk scores
+
+**Challenge:** Customers with no paid-invoice history returned a
+DSO of 0, which the scoring logic read as the *best possible* payer.
+This inverted the intended signal — the least-known customers,
+with no track record at all, were being flagged as the safest
+in the portfolio.
+
+**Solution:** Changed the payment-behaviour measures to return
+BLANK() rather than 0 when no history exists. Missing customers are
+now treated as *unscored* rather than *low-risk*, keeping the score
+numeric (so sorting and conditional formatting still work) while
+refusing to assert a reassuring value the data does not support.
+
+### 6. High-risk receivables filter catching no one
+
+**Challenge:** The Page 3 banner was designed to total receivables
+from "high-risk" customers, initially defined as DSO > 60 days.
+But the worst-paying customer in the dataset sits at DSO 59 —
+one day under the threshold — so the filter captured zero
+receivables and the banner reported an empty value.
+
+**Solution:** Re-anchored the high-risk definition from a single
+raw metric (DSO) to the composite risk score (> 70), which captures
+the customer correctly at 71. This is conceptually stronger as well
+as functional: the composite reflects multiple payment dimensions,
+not one, and yields a headline figure — €185,172, 22.1% of the
+book, sitting in the high-risk tier.
+
+### 7. Reconciling transactional and balance-sheet data for the CCC
+
+**Challenge:** DSO and DPO derive from transactional ledgers (open
+AR and AP invoices), but the inventory component (DIO) of the cash
+conversion cycle comes from the balance sheet in the annual accounts
+— a different data source at a different grain (period-end stock
+versus invoice-level flow).
+
+**Solution:** Annualised both sides to a common basis before
+combining — inventory-holding days from balance-sheet stock against
+cost of goods, collection and payment days from the VAT-inclusive
+ledger formulas — so that DSO, DIO, and DPO sit on a consistent
+365-day footing within a single CCC identity (73 + 130 − 57 = 146).
+
 ---
 
 ## What I Learned
@@ -320,6 +470,18 @@ materials, processes them, invoices late, and waits.
 The gap between profitability and liquidity in SMEs is structural,
 not circumstantial. A DSCR of 2.56 and a liquidity runway of
 32 days can coexist — and usually do.
+
+**On working capital and risk:**
+
+The biggest customer and the riskiest customer are rarely the same
+name — size measures how much you depend on someone, behaviour
+measures whether they pay. A single revenue ranking captures neither.
+And the cash conversion cycle explains what the DSO–DPO gap hides:
+a company can collect only 16 days slower than it pays and still trap
+cash for 146 days, because inventory — not the collection gap — is
+where the money actually sits. Separating these dimensions is the
+difference between knowing you have a working-capital problem and
+knowing where it is.
 
 **On forecasting:**
 
@@ -427,8 +589,8 @@ Commercial use or redistribution requires written permission.
 ## Author
 
 Diego Delbianco
-finance professional working at the intersection of
-FP&A, Treasury Management, and Business Intelligence.
+Economics & Management graduate (Università di Bologna),
+specialising in FP&A, Treasury Management, and Business Intelligence.
 
 This project demonstrates applied financial modelling —
 from regulatory framework design to automated dashboard
@@ -437,8 +599,4 @@ delivery and prescriptive analytics.
 www.linkedin.com/in/diego-delbianco-588b32293
 
 diegodelbianco12@gmail.com
-
----
-
-*Module 1 of a four-project financial analytics portfolio.
 Full series documentation in progress.*
