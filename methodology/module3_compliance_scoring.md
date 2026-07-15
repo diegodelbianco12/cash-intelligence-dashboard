@@ -36,7 +36,7 @@ The structure is not a free-form cash forecast — it is a defined sequence:
 A   Opening cash balance                          =    €47,200
 │
 B   Operative inflows — AR schedule (6 months)    =   €516,200
-    Estimated future inflows (not yet invoiced)   =         €0  ← see §7
+    Estimated future inflows (not yet invoiced)   =         €0  ← see §8
 │
 C   Operative outflows (6 months)                 =  −€482,700
     ├── Tax obligations — F24                     =  −€103,000
@@ -54,6 +54,10 @@ I   Projected closing balance        (F − G)      =    €49,160
 
 **DSCR = F ÷ G = €80,700 ÷ €31,540 = 2.56** ✅
 **Threshold: ≥ 1.0 (D.Lgs. 14/2019)**
+
+The supplier line (€119,000) is the portion of open payables scheduled to
+fall due inside the six-month budget window — a narrower figure than the
+full open AP balance, which the monitoring pages report separately.
 
 ### 2.2 Why the Structure Separates Operative from Financial Outflows
 
@@ -105,7 +109,8 @@ a flat ratio, because the DSCR denominator is the *total* instalment
 Confusing the two is one of the most common errors in simplified DSCR
 implementations.
 
-**Six-month debt service: €31,540.**
+**Six-month debt service: €31,540** (six monthly loan and lease instalments
+plus the quarterly revolving-facility charges falling inside the window).
 
 ---
 
@@ -164,7 +169,7 @@ whole project was built to expose: a number that is true, comforting, and
 incomplete.
 
 **Important caveat on this specific figure:** the 0.56 result is partly
-driven by a known limitation of the model, documented in §7. It should be
+driven by a known limitation of the model, documented in §8. It should be
 read as a **lower bound under current visibility**, not as a forecast.
 
 ---
@@ -387,7 +392,10 @@ In practice it became something else as well: a **reconciliation surface.**
 Every headline figure in the project appears in one place, which makes
 internal inconsistency immediately visible. More than one modelling error in
 this project was caught not by inspecting a formula, but by noticing that two
-pages disagreed about the same number.
+pages disagreed about the same number. Where a quantity is windowed on one
+page and shown in full on another — total open payables versus the six-month
+scheduled subset, for example — the snapshot reports the full balance and
+leaves the scope difference explicit rather than hidden.
 
 ---
 
