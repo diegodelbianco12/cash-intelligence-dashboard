@@ -110,8 +110,8 @@ not a simultaneous list.
 | Scenario | Receivables Timing | Payables Timing | Purpose |
 |----------|--------------------|-----------------|---------|
 | Optimistic | Contractual due date — zero delay | Fixed weekly schedule | Upper bound — best case |
-| Base | Due date + historical DSO per customer | Fixed weekly schedule | Central estimate — realistic |
-| Pessimistic | Due date + portfolio DSO + 30 days | Fixed weekly schedule | Stress test — downside |
+| Base | Due date + historical delay per customer | Fixed weekly schedule | Central estimate — realistic |
+| Pessimistic | Due date + portfolio-average delay + 30 days | Fixed weekly schedule | Stress test — downside |
 
 **Design principle:** Only receivables shift between scenarios.
 Payables, tax obligations, and debt service are held constant
@@ -134,15 +134,23 @@ the dashboard communicates:
 This framing produces fundamentally different treasury decisions
 than a single projected balance.
 
-### Customer-Level DSO — Base Scenario
+### Customer-Level Delay — Base Scenario
 
 The base scenario applies each customer's individual historical
-payment behaviour rather than a portfolio average. DSO is derived
-from paid invoice history per counterparty — customers with
-no payment history default to a 20-day assumption
-(Italian manufacturing average, Cerved 2023).
-This produces a more accurate central estimate than a
+payment behaviour rather than a portfolio average. The delay is
+derived from paid invoice history per counterparty — customers with
+no payment history fall back on a conservative 20-day sector-average
+default. This produces a more accurate central estimate than a
 single portfolio-average delay.
+
+This default is a deliberate contrast with the credit-scoring model
+in Module 2, which returns a blank rather than a number for the same
+customers. The two rules are both correct because they serve different
+purposes: a cash forecast must produce a figure for every counterparty,
+so it falls back on a conservative default; a behavioural risk score
+must not invent a signal where no payment history exists. Producing a
+number and refusing to produce one are each the right choice in their
+own context.
 
 ### Cumulative Rolling Architecture
 
@@ -254,7 +262,7 @@ Threshold: ≥ 1.0 = sustainable
            < 1.0 = structural concern — board action required
 ```
 
-**Test result: 0.60 → 🔴**
+**Test result: 0.56 → 🔴**
 
 This result does not contradict the healthy DSCR of 2.56.
 The 6-month window captures a period where invoice-based inflows
@@ -271,7 +279,7 @@ the core limitation identified for live implementation.
 |--------|-------|--------|-----------|--------|
 | Liquidity Runway | 32 days | ⚠️ | > 60 days | Treasury practice |
 | DSCR (6 months) | 2.56 | ✅ | ≥ 1.0 | CNDCEC 2022 §3.2 |
-| 12M Sustainability | 0.60 | 🔴 | ≥ 1.0 | Art. 2086 c.c. |
+| 12M Sustainability | 0.56 | 🔴 | ≥ 1.0 | Art. 2086 c.c. |
 | 90-Day Minimum Balance | €224,554 | ✅ | > Safety threshold | Internal |
 | 6-Month Net Closing Balance | €49,160 | ✅ | > 0 | Internal |
 | DSO | 73 days | ⚠️ | ≤ 52 days | CNDCEC 2022 §4.1 |
