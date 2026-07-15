@@ -280,7 +280,7 @@ Liquidity Runway = Cash Balance / (Monthly Fixed Costs / 30)
 |----------|------------|---------|
 | Optimistic | Collected on due date | Fixed weekly schedule |
 | Base | Due date + historical delay per customer | Fixed weekly schedule |
-| Pessimistic | Due date + delay + 30-day stress | Fixed weekly schedule |
+| Pessimistic | Due date + portfolio-average delay + 30 days | Fixed weekly schedule |
 
 Payables are invariant across all scenarios — suppliers, tax
 authorities, and banks do not extend delays because a customer
@@ -539,16 +539,20 @@ where the cash actually is, and when it will move.
 
 ### 1. Scenario integrity under incomplete data
 
-**Challenge:** When customers had no historical payment data,
-the base scenario used a portfolio-average delay. This caused
-the pessimistic scenario (base + 30 days) to sometimes produce
-higher projected balances than the base — inverting the intended
-ordering of the three curves.
+**Challenge:** The three forecast curves are meant to stay strictly ordered
+— optimistic above base, base above pessimistic. An early version estimated
+each scenario from a projected *collection date*, and when a customer had no
+payment history that estimate fell back on a portfolio average. The result
+was curves that occasionally crossed: the pessimistic projection sometimes
+sat above the base one, which is analytically nonsensical.
 
-**Solution:** Redesigned the receivable timing logic to anchor
-all scenarios to the contractual due date, not to the estimated
-collection date. This guarantees Optimistic ≥ Base ≥ Pessimistic
-at every data point, regardless of missing customer history.
+**Solution:** Redesigned the receivable timing logic to anchor every scenario
+to the same contractual due-date baseline, then add a non-negative delay on
+top — zero for optimistic, each customer's own history for base, and a
+portfolio-wide stress buffer (+30 days on the average delay) for pessimistic.
+Measuring from the due date rather than an estimated collection date removed
+the inversions and keeps the three curves correctly ordered across the
+forecast.
 
 ### 2. Tax and debt data in non-standard format
 
@@ -765,8 +769,9 @@ build better forecasting models.
 
 ## Dataset
 
-All data is synthetic and generated for demonstration purposes.
-No real company data is included.
+All data is synthetic and generated for demonstration purposes — no real
+company data is included. The raw files are not published in this
+repository; the table below documents the input data the system consumes.
 
 | File | Content | Frequency |
 |------|---------|-----------|
@@ -786,32 +791,18 @@ cash-intelligence-dashboard/
 │
 ├── README.md
 │
-├── report/
-│   └── cashflow_dashboard.pbix
-│
-├── dataset/                        ← Synthetic data only
-│   ├── accounts_receivable.xlsx
-│   ├── accounts_payable.xlsx
-│   ├── bank_movements.csv
-│   ├── tax_schedule.xlsx
-│   ├── loan_amortisation.xlsx
-│   └── annual_accounts.xlsx
-│
 ├── methodology/
 │   ├── module1_liquidity_forecast.md
 │   ├── module2_risk_analysis.md
 │   └── module3_compliance_scoring.md
 │
-└── docs/
-    ├── screenshots/
-    │   ├── page1_health.png
-    │   ├── page2_cashflow.png
-    │   ├── page3_clients.png
-    │   ├── page4_suppliers.png
-    │   ├── page5_dscr.png
-    │   ├── page6_rating.png
-    │   └── page7_actions.png
-    └── data_architecture.md
+├── page1_health.png
+├── page2_cashflow.png
+├── page3_clients.png
+├── page4_suppliers.png
+├── page5_dscr.png
+├── page6_rating.png
+└── page7_actions.png
 ```
 
 ---
@@ -848,12 +839,3 @@ delivery and prescriptive analytics.
 www.linkedin.com/in/diego-delbianco-588b32293
 
 diegodelbianco12@gmail.com
-
----
-
-*Project 1 of a four-project financial analytics portfolio:*
-*Cash Intelligence Dashboard (this repository) · Credit Risk Scoring —
-PD, LGD, Expected Loss · Volatility Forecasting — GARCH & Dynamic VaR ·
-ML for Market Risk — PCA & Random Forest.*
-
-*Documentation complete — all three modules published.*
