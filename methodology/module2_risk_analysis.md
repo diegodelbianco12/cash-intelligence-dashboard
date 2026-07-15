@@ -84,7 +84,7 @@ The scatter plot maps every customer on two axes:
 
 - **X — average invoice size (€):** single-invoice exposure the customer
   represents
-- **Y — average payment delay (DSO, days):** how slowly the customer pays
+- **Y — average payment delay (days):** how slowly the customer pays
 
 The quadrant that matters is top-right: **large invoices paid late** —
 high value at risk for a long time. A customer with small invoices paid
@@ -104,7 +104,7 @@ The score is directional — higher means riskier — and combines:
 
 | Dimension | Column | Directional logic |
 |-----------|--------|-------------------|
-| Payment slowness | DSO per customer | Higher DSO → higher risk |
+| Payment slowness | Average payment delay | Slower → higher risk |
 | Payment reliability | Delay frequency (share of invoices paid late) | Late more often → higher risk |
 | Payment volatility | Delay variance | Erratic, unpredictable timing → higher risk |
 | Portfolio exposure | Concentration risk | Larger share of the book → a given behaviour matters more |
@@ -119,16 +119,16 @@ who represents one percent. Each dimension is normalised to a common
 
 The comparison that motivates the whole design:
 
-| Customer | Open receivables | Concentration | DSO | Composite score |
-|----------|------------------|---------------|-----|-----------------|
+| Customer | Open receivables | Concentration | Avg. delay | Composite score |
+|----------|------------------|---------------|-----------|-----------------|
 | Alfa Meccanica | €373,644 | 37% | 27 days | **61** |
 | Gamma Costruzioni | €185,172 | 20% | 59 days | **71** |
 
-Rank by size → Alfa is the concern. Rank by DSO → Gamma. Rank by
+Rank by size → Alfa is the concern. Rank by delay → Gamma. Rank by
 concentration → Alfa. The composite resolves the conflict into one number
 and correctly identifies Gamma as the highest behavioural risk: it pays
 effectively every invoice late (delay frequency ≈ 1.0) and carries the
-highest DSO in the book, even though it is smaller than Alfa.
+highest average delay in the book, even though it is smaller than Alfa.
 
 Aggregated across the portfolio, receivables in the high-risk tier
 (score > 70) total **€185,172 — 22.1% of the open book sitting with the
@@ -143,7 +143,7 @@ history in the current dataset. For these, the payment-behaviour
 dimensions are **undefined, not zero** — the model returns a blank
 rather than a value.
 
-This distinction is deliberate. A DSO of 0 would mean "collects
+This distinction is deliberate. A delay of 0 would mean "collects
 instantly — the best possible payer," which is the opposite of
 "no data yet." Coercing missing history to zero would silently flag the
 least-known customers as the safest, exactly inverting the intended
@@ -152,6 +152,13 @@ pattern exists, and those customers are treated as *unscored* rather than
 *low-risk*. This mirrors the scenario-integrity principle from Module 1:
 missing customer history must never be allowed to produce a falsely
 reassuring number.
+
+Note the deliberate asymmetry with the forecast in Module 1, where the
+same history-less customers are assigned a conservative 20-day default
+rather than a blank. A cash forecast must produce a number for every
+counterparty to project a balance; a risk score must refuse to invent a
+behavioural signal it has no evidence for. Same customers, opposite
+handling — because the two models answer different questions.
 
 ---
 
